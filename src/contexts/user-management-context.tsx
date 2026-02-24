@@ -78,8 +78,8 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [holidays, setHolidaysState] = useState<Holiday[]>([]);
-  const [settings, setSettingsState] = useState<SystemSettings>(MOCK_SETTINGS);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [settings, setSettings] = useState<SystemSettings>(MOCK_SETTINGS);
 
   useEffect(() => {
     const loadData = <T,>(key: string, mockData: T): T => {
@@ -100,39 +100,21 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     setTeachers(loadData(TEACHERS_STORAGE_KEY, MOCK_TEACHERS));
     setParents(loadData(PARENTS_STORAGE_KEY, MOCK_PARENTS));
     setMessages(loadData(MESSAGES_STORAGE_KEY, MOCK_MESSAGES));
-    setHolidaysState(loadData(HOLIDAYS_STORAGE_KEY, MOCK_HOLIDAYS));
-    setSettingsState(loadData(SETTINGS_STORAGE_KEY, MOCK_SETTINGS));
+    setHolidays(loadData(HOLIDAYS_STORAGE_KEY, MOCK_HOLIDAYS));
+    setSettings(loadData(SETTINGS_STORAGE_KEY, MOCK_SETTINGS));
 
     const handleStorageChange = (e: StorageEvent) => {
         if (e.key === STUDENTS_STORAGE_KEY && e.newValue) setStudents(JSON.parse(e.newValue));
         if (e.key === TEACHERS_STORAGE_KEY && e.newValue) setTeachers(JSON.parse(e.newValue));
         if (e.key === PARENTS_STORAGE_KEY && e.newValue) setParents(JSON.parse(e.newValue));
         if (e.key === MESSAGES_STORAGE_KEY && e.newValue) setMessages(JSON.parse(e.newValue));
-        if (e.key === HOLIDAYS_STORAGE_KEY && e.newValue) setHolidaysState(JSON.parse(e.newValue));
-        if (e.key === SETTINGS_STORAGE_KEY && e.newValue) setSettingsState(JSON.parse(e.newValue));
+        if (e.key === HOLIDAYS_STORAGE_KEY && e.newValue) setHolidays(JSON.parse(e.newValue));
+        if (e.key === SETTINGS_STORAGE_KEY && e.newValue) setSettings(JSON.parse(e.newValue));
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
-  const updateStateAndStorage = <T,>(setter: React.Dispatch<React.SetStateAction<T>>, key: string, newValues: T) => {
-      setter(newValues);
-      try {
-        localStorage.setItem(key, JSON.stringify(newValues));
-      } catch (error) {
-        console.error(`Failed to write to localStorage for key: ${key}.`, error);
-      }
-  };
-
-  const updateListAndStorage = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, key: string, newValues: T[]) => {
-      setter(newValues);
-       try {
-        localStorage.setItem(key, JSON.stringify(newValues));
-      } catch (error) {
-        console.error(`Failed to write to localStorage for key: ${key}.`, error);
-      }
-  }
   
   const addStudent = (studentData: Omit<Student, 'id' | 'studentId' | 'status'>) => {
     setStudents(prev => {
@@ -143,7 +125,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
           status: 'approved',
         };
         const updated = [...prev, newStudent];
-        updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -161,7 +143,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
         dob: '', phone: '', address: '', photo: null, grades: {}, attendance: {},
       };
       const updatedStudents = [...prevStudents, newStudent];
-      updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updatedStudents);
+      localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updatedStudents));
       return updatedStudents;
     });
   };
@@ -174,7 +156,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
           phone: '',
       };
       const updatedParents = [...prevParents, newParent];
-      updateListAndStorage(setParents, PARENTS_STORAGE_KEY, updatedParents);
+      localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updatedParents));
       return updatedParents;
     });
   };
@@ -198,7 +180,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
           delete studentToApprove.approvalCode;
           studentToApprove.status = 'approved';
           updated[studentIndex] = studentToApprove;
-          updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+          localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
           return updated;
       }
       return prev;
@@ -216,7 +198,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
         delete studentToApprove.approvalCode;
         studentToApprove.status = 'approved';
         updated[studentIndex] = studentToApprove;
-        updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
       }
       return prev;
@@ -224,14 +206,14 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
   };
 
   const addTeacher = (teacherData: Omit<Teacher, 'id' | 'teacherId'>) => {
-    const newTeacher: Teacher = {
-      ...teacherData,
-      id: `teacher-${Date.now()}`,
-      teacherId: `T${Math.floor(100 + Math.random() * 900)}`,
-    };
     setTeachers(prev => {
+        const newTeacher: Teacher = {
+          ...teacherData,
+          id: `teacher-${Date.now()}`,
+          teacherId: `T${Math.floor(100 + Math.random() * 900)}`,
+        };
         const updated = [...prev, newTeacher];
-        updateListAndStorage(setTeachers, TEACHERS_STORAGE_KEY, updated);
+        localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -244,7 +226,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
           phone: parentData.phone || '',
         };
         const updated = [...prev, newParent];
-        updateListAndStorage(setParents, PARENTS_STORAGE_KEY, updated);
+        localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -263,7 +245,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
             }
             return s;
         });
-        updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -272,19 +254,19 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     if ('studentId' in userToUpdate) { // It's a Student
       setStudents(prev => {
         const updated = prev.map(s => s.id === userToUpdate.id ? userToUpdate as Student : s);
-        updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
       });
     } else if ('teacherId' in userToUpdate) { // It's a Teacher
       setTeachers(prev => {
         const updated = prev.map(t => t.id === userToUpdate.id ? userToUpdate as Teacher : t);
-        updateListAndStorage(setTeachers, TEACHERS_STORAGE_KEY, updated);
+        localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
       });
     } else { // It's a Parent
        setParents(prev => {
         const updated = prev.map(p => p.id === userToUpdate.id ? userToUpdate as Parent : p);
-        updateListAndStorage(setParents, PARENTS_STORAGE_KEY, updated);
+        localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
       });
     }
@@ -294,36 +276,36 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     setStudents(prev => {
         const updated = prev.filter(s => s.id !== userId);
         if (updated.length < prev.length) {
-             updateListAndStorage(setStudents, STUDENTS_STORAGE_KEY, updated);
+             localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
         }
         return updated;
     });
     setTeachers(prev => {
         const updated = prev.filter(t => t.id !== userId);
          if (updated.length < prev.length) {
-            updateListAndStorage(setTeachers, TEACHERS_STORAGE_KEY, updated);
+            localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
         }
         return updated;
     });
      setParents(prev => {
         const updated = prev.filter(p => p.id !== userId);
          if (updated.length < prev.length) {
-            updateListAndStorage(setParents, PARENTS_STORAGE_KEY, updated);
+            localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
         }
         return updated;
     });
   };
 
   const addMessage = (messageData: Omit<Message, 'id' | 'timestamp' | 'read'>) => {
-    const newMessage: Message = {
-        ...messageData,
-        id: `msg-${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        read: false,
-    };
     setMessages(prev => {
+        const newMessage: Message = {
+            ...messageData,
+            id: `msg-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            read: false,
+        };
         const updated = [...prev, newMessage];
-        updateListAndStorage(setMessages, MESSAGES_STORAGE_KEY, updated);
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -331,7 +313,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
   const deleteMessage = (messageId: string) => {
     setMessages(prev => {
         const updated = prev.filter(m => m.id !== messageId);
-        updateListAndStorage(setMessages, MESSAGES_STORAGE_KEY, updated);
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   };
@@ -356,26 +338,27 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
         });
 
         if (changed) {
-            updateListAndStorage(setMessages, MESSAGES_STORAGE_KEY, updated);
+            localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
             return updated;
         }
         return prev;
     });
   }
 
-  const setHolidays = (newHolidays: Holiday[]) => {
-    updateStateAndStorage(setHolidaysState, HOLIDAYS_STORAGE_KEY, newHolidays);
+  const setHolidaysState = (newHolidays: Holiday[]) => {
+    setHolidays(newHolidays);
+    localStorage.setItem(HOLIDAYS_STORAGE_KEY, JSON.stringify(newHolidays));
   }
 
   const updateSettings = (newSettings: Partial<SystemSettings>) => {
-    setSettingsState(prev => {
+    setSettings(prev => {
         const updated = { ...prev, ...newSettings };
-        updateStateAndStorage(setSettingsState, SETTINGS_STORAGE_KEY, updated);
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
         return updated;
     });
   }
 
-  const value = { students, teachers, parents, messages, holidays, settings, updateSettings, setHolidays, addMessage, deleteMessage, markMessagesAsReadForUser, addStudent, addTeacher, addParent, registerStudent, registerParent, approveStudent, adminApproveStudent, updateStudentAttendance, updateUser, deleteUser };
+  const value = { students, teachers, parents, messages, holidays, settings, updateSettings, setHolidays: setHolidaysState, addMessage, deleteMessage, markMessagesAsReadForUser, addStudent, addTeacher, addParent, registerStudent, registerParent, approveStudent, adminApproveStudent, updateStudentAttendance, updateUser, deleteUser };
 
   return <UserManagementContext.Provider value={value}>{children}</UserManagementContext.Provider>;
 }

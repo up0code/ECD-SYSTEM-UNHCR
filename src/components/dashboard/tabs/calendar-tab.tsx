@@ -12,7 +12,7 @@ export default function CalendarTab() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   // Find the current student's attendance if logged in as a student
-  const studentData = students.find(s => s.email === user?.email);
+  const studentData = user?.role === 'student' ? students.find(s => s.id === user.uid) : undefined;
 
   const holidaysWithDateObjects = holidayData.map(h => ({ name: h.name, date: new Date(h.id + 'T00:00:00')}));
   const holidays = holidaysWithDateObjects.map(h => h.date);
@@ -26,6 +26,9 @@ export default function CalendarTab() {
   }, {} as Record<string, Date[]>) : {};
 
   const getStatusForSelectedDate = () => {
+    if (user?.role !== 'student') {
+        return <p className="text-muted-foreground">This calendar is for viewing personal student attendance. This account is not a student account.</p>;
+    }
     if (!studentData) {
         return <p className="text-muted-foreground">This calendar is for viewing personal attendance. No student profile is associated with this account.</p>;
     }
