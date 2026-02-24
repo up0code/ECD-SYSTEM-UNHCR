@@ -61,6 +61,7 @@ interface UserManagementContextType {
   markMessagesAsReadForUser: (userId: string) => void;
   addStudent: (student: Omit<Student, 'id' | 'studentId' | 'status'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'teacherId'>) => void;
+  addParent: (parent: Omit<Parent, 'id'>) => void;
   registerStudent: (student: RegisteringUser) => void;
   registerParent: (parent: RegisteringUser) => void;
   approveStudent: (email: string, code: string) => boolean;
@@ -235,6 +236,19 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     });
   };
   
+  const addParent = (parentData: Omit<Parent, 'id'>) => {
+    setParents(prev => {
+        const newParent: Parent = {
+          ...parentData,
+          id: `parent-${Date.now()}`,
+          phone: parentData.phone || '',
+        };
+        const updated = [...prev, newParent];
+        updateListAndStorage(setParents, PARENTS_STORAGE_KEY, updated);
+        return updated;
+    });
+  };
+
   const updateStudentAttendance = (studentId: string, date: string, status: AttendanceStatus) => {
     setStudents(prev => {
         const updated = prev.map(s => {
@@ -361,7 +375,7 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  const value = { students, teachers, parents, messages, holidays, settings, updateSettings, setHolidays, addMessage, deleteMessage, markMessagesAsReadForUser, addStudent, addTeacher, registerStudent, registerParent, approveStudent, adminApproveStudent, updateStudentAttendance, updateUser, deleteUser };
+  const value = { students, teachers, parents, messages, holidays, settings, updateSettings, setHolidays, addMessage, deleteMessage, markMessagesAsReadForUser, addStudent, addTeacher, addParent, registerStudent, registerParent, approveStudent, adminApproveStudent, updateStudentAttendance, updateUser, deleteUser };
 
   return <UserManagementContext.Provider value={value}>{children}</UserManagementContext.Provider>;
 }

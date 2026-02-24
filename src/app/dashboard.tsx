@@ -25,6 +25,7 @@ import {
   BookOpen,
   Shield,
   HeartHandshake,
+  Users2,
 } from 'lucide-react';
 
 // Import all the tab components
@@ -41,6 +42,8 @@ import MessagesTab from '@/components/dashboard/tabs/messages-tab';
 import TeacherTab from '@/components/dashboard/tabs/teacher-tab';
 import StudentsTab from '@/components/dashboard/tabs/students-tab';
 import ParentTab from '@/components/dashboard/tabs/parent-tab';
+import TeachersTab from '@/components/dashboard/tabs/teachers-tab';
+import ParentsTab from '@/components/dashboard/tabs/parents-tab';
 import { useUserManagement } from '@/contexts/user-management-context';
 import { Badge } from '@/components/ui/badge';
 
@@ -57,6 +60,8 @@ type View =
   | 'settings'
   | 'messages'
   | 'students'
+  | 'teachers'
+  | 'parents'
   | 'parent';
 
 export default function Dashboard() {
@@ -117,6 +122,10 @@ export default function Dashboard() {
         return <MessagesTab />;
       case 'students':
         return <StudentsTab />;
+      case 'teachers':
+        return <TeachersTab />;
+      case 'parents':
+        return <ParentsTab />;
       case 'parent':
         return <ParentTab />;
       default:
@@ -131,6 +140,12 @@ export default function Dashboard() {
       </SidebarMenuItem>
       <SidebarMenuItem>
         <SidebarMenuButton onClick={() => setView('students')} isActive={view === 'students'} tooltip="Students"><Users /><span>Students</span></SidebarMenuButton>
+      </SidebarMenuItem>
+       <SidebarMenuItem>
+        <SidebarMenuButton onClick={() => setView('teachers')} isActive={view === 'teachers'} tooltip="Teachers"><Users2 /><span>Teachers</span></SidebarMenuButton>
+      </SidebarMenuItem>
+       <SidebarMenuItem>
+        <SidebarMenuButton onClick={() => setView('parents')} isActive={view === 'parents'} tooltip="Parents"><HeartHandshake /><span>Parents</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
         <SidebarMenuButton onClick={() => setView('checkin')} isActive={view === 'checkin'} tooltip="Check-In"><QrCode /><span>Check-In</span></SidebarMenuButton>
