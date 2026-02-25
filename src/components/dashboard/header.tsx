@@ -10,7 +10,7 @@ export default function Header() {
         <div className="flex gap-4 items-center">
           <SidebarTrigger />
           <a href="/" className="flex items-center space-x-2">
-            <span className="inline-block font-bold text-primary">Global Opportunity Tracker</span>
+            <span className="inline-block font-bold text-primary">G P T</span>
           </a>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">

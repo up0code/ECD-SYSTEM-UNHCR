@@ -7,8 +7,8 @@ import './globals.css';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Global Opportunity Tracker',
-  description: 'ECD - UNHCR English for Global Opportunity',
+  title: 'G P T',
+  description: 'Attendance and School Management',
 };
 
 export default function RootLayout({

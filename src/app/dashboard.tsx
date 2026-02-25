@@ -243,7 +243,7 @@ export default function Dashboard() {
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <a href="/" className="flex items-center space-x-2 px-2">
-            <span className="inline-block font-bold text-primary">ECD - UNHCR</span>
+            <span className="inline-block font-bold text-primary">G P T</span>
           </a>
         </SidebarHeader>
         <SidebarContent>
