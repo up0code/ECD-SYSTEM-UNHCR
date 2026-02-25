@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Html5QrcodeScanner, Html5QrcodeScannerState } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5QrcodeScannerState, Html5QrcodeScanType } from 'html5-qrcode';
 
 interface QrcodeScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -18,7 +18,8 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
         qrbox: { width: 250, height: 250 },
         videoConstraints: {
           facingMode: facingMode
-        }
+        },
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
       },
       /* verbose= */ false
     );
