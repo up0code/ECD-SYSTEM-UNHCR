@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Users,
@@ -64,10 +65,19 @@ type View =
   | 'parents'
   | 'parent';
 
-export default function Dashboard() {
+
+function DashboardContent() {
   const { user } = useAuth();
   const { messages, students } = useUserManagement();
   const [view, setView] = useState<View>('attendance');
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleNavigate = (newView: View) => {
+    setView(newView);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   if (!user) return null;
 
@@ -136,90 +146,90 @@ export default function Dashboard() {
   const adminNav = (
     <>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('students')} isActive={view === 'students'} tooltip="Students"><Users /><span>Students</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('students')} isActive={view === 'students'} tooltip="Students"><Users /><span>Students</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('teachers')} isActive={view === 'teachers'} tooltip="Teachers"><Users2 /><span>Teachers</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('teachers')} isActive={view === 'teachers'} tooltip="Teachers"><Users2 /><span>Teachers</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('parents')} isActive={view === 'parents'} tooltip="Parents"><HeartHandshake /><span>Parents</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('parents')} isActive={view === 'parents'} tooltip="Parents"><HeartHandshake /><span>Parents</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('checkin')} isActive={view === 'checkin'} tooltip="Check-In"><QrCode /><span>Check-In</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('checkin')} isActive={view === 'checkin'} tooltip="Check-In"><QrCode /><span>Check-In</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('qrcodes')} isActive={view === 'qrcodes'} tooltip="QR Codes"><QrCode /><span>QR Codes</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('qrcodes')} isActive={view === 'qrcodes'} tooltip="QR Codes"><QrCode /><span>QR Codes</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('analytics')} isActive={view === 'analytics'} tooltip="Analytics"><BarChart2 /><span>Analytics</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('analytics')} isActive={view === 'analytics'} tooltip="Analytics"><BarChart2 /><span>Analytics</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('reports')} isActive={view === 'reports'} tooltip="Reports"><FileText /><span>Reports</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('reports')} isActive={view === 'reports'} tooltip="Reports"><FileText /><span>Reports</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('messages')} isActive={view === 'messages'} tooltip="Messages">
+        <SidebarMenuButton onClick={() => handleNavigate('messages')} isActive={view === 'messages'} tooltip="Messages">
             <MessageSquare /><span>Messages</span>
             {unreadCount > 0 && <Badge variant="destructive" className="ml-auto">{unreadCount}</Badge>}
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('admin')} isActive={view === 'admin'} tooltip="Admin"><Shield /><span>Admin</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('admin')} isActive={view === 'admin'} tooltip="Admin"><Shield /><span>Admin</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('settings')} isActive={view === 'settings'} tooltip="Settings"><Settings /><span>Settings</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('settings')} isActive={view === 'settings'} tooltip="Settings"><Settings /><span>Settings</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
       </SidebarMenuItem>
     </>
   );
   const teacherNav = (
     <>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('checkin')} isActive={view === 'checkin'} tooltip="Check-In"><QrCode /><span>Check-In</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('checkin')} isActive={view === 'checkin'} tooltip="Check-In"><QrCode /><span>Check-In</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('myclass')} isActive={view === 'myclass'} tooltip="My Class"><BookOpen /><span>My Class</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('myclass')} isActive={view === 'myclass'} tooltip="My Class"><BookOpen /><span>My Class</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('messages')} isActive={view === 'messages'} tooltip="Messages">
+        <SidebarMenuButton onClick={() => handleNavigate('messages')} isActive={view === 'messages'} tooltip="Messages">
             <MessageSquare /><span>Messages</span>
             {unreadCount > 0 && <Badge variant="destructive" className="ml-auto">{unreadCount}</Badge>}
         </SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
       </SidebarMenuItem>
     </>
   );
   const studentNav = (
     <>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('attendance')} isActive={view === 'attendance'} tooltip="Attendance"><CheckSquare /><span>Attendance</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('calendar')} isActive={view === 'calendar'} tooltip="Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('messages')} isActive={view === 'messages'} tooltip="Messages">
+        <SidebarMenuButton onClick={() => handleNavigate('messages')} isActive={view === 'messages'} tooltip="Messages">
             <MessageSquare /><span>Messages</span>
             {unreadCount > 0 && <Badge variant="destructive" className="ml-auto">{unreadCount}</Badge>}
         </SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
       </SidebarMenuItem>
     </>
   );
@@ -227,19 +237,19 @@ export default function Dashboard() {
   const parentNav = (
     <>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('parent')} isActive={view === 'parent'} tooltip="My Child"><HeartHandshake /><span>My Child</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('parent')} isActive={view === 'parent'} tooltip="My Child"><HeartHandshake /><span>My Child</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('calendar')} isActive={view === 'calendar'} tooltip="School Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('calendar')} isActive={view === 'calendar'} tooltip="School Calendar"><Calendar /><span>Calendar</span></SidebarMenuButton>
       </SidebarMenuItem>
        <SidebarMenuItem>
-        <SidebarMenuButton onClick={() => setView('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
+        <SidebarMenuButton onClick={() => handleNavigate('profile')} isActive={view === 'profile'} tooltip="Profile"><User /><span>Profile</span></SidebarMenuButton>
       </SidebarMenuItem>
     </>
   );
 
   return (
-     <SidebarProvider expandOnHover={true}>
+    <>
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <a href="/" className="flex items-center space-x-2 px-2">
@@ -261,6 +271,15 @@ export default function Dashboard() {
           {renderView()}
         </main>
       </SidebarInset>
+    </>
+  );
+}
+
+
+export default function Dashboard() {
+  return (
+     <SidebarProvider expandOnHover={true}>
+      <DashboardContent />
     </SidebarProvider>
   );
 }
