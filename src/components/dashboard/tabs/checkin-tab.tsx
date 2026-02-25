@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useUserManagement } from '@/contexts/user-management-context';
 import QrcodeScanner from '@/components/qrcode-scanner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Camera, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Camera, Clock, CameraOff } from 'lucide-react';
 import type { Student } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 
@@ -16,15 +16,54 @@ type ScanResult = {
   status: 'present' | 'late';
 };
 
+// Function to play a 'pip' sound
+const playPipSound = () => {
+    if (typeof window === 'undefined') return;
+    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (!context) return;
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, context.currentTime); // A6 note
+    gainNode.gain.setValueAtTime(0.5, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.3);
+};
+
+
 export default function CheckinTab() {
   const { toast } = useToast();
   const { students, settings, updateStudentAttendance } = useUserManagement();
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showScanner, setShowScanner] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user'>('environment');
 
+  useEffect(() => {
+    const requestCameraPermission = async () => {
+      try {
+        // Request permission
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Stop the tracks immediately, html5-qrcode will manage its own stream
+        stream.getTracks().forEach(track => track.stop());
+        setHasCameraPermission(true);
+      } catch (err) {
+        console.error("Camera permission error:", err);
+        setHasCameraPermission(false);
+        setError("Camera access was denied. Please enable camera permissions in your browser settings to use the scanner.");
+      }
+    };
+    requestCameraPermission();
+  }, []);
+
   const onScanSuccess = (decodedText: string) => {
+    playPipSound(); // Play sound on successful scan
     const student = students.find(s => s.studentId === decodedText);
     if (student) {
       const now = new Date();
@@ -63,6 +102,41 @@ export default function CheckinTab() {
     setCameraFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
   }
 
+  const renderScanner = () => {
+    if (hasCameraPermission === null) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+                <p className="text-muted-foreground">Requesting camera permission...</p>
+            </div>
+        );
+    }
+    if (hasCameraPermission === false) {
+        return (
+            <Alert variant="destructive">
+                <CameraOff className="h-4 w-4" />
+                <AlertTitle>Camera Access Denied</AlertTitle>
+                <AlertDescription>
+                    Camera access is required for the QR code scanner. Please enable it in your browser settings and refresh the page.
+                </AlertDescription>
+            </Alert>
+        );
+    }
+    return (
+        <>
+            <QrcodeScanner
+            key={cameraFacingMode}
+            onScanSuccess={onScanSuccess}
+            onScanFailure={onScanFailure}
+            facingMode={cameraFacingMode}
+            />
+            <Button variant="outline" size="icon" onClick={toggleCamera} className="absolute top-2 right-2 z-10 bg-background/50 backdrop-blur-sm hover:bg-background/75">
+                <Camera />
+                <span className="sr-only">Switch Camera</span>
+            </Button>
+        </>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -71,25 +145,7 @@ export default function CheckinTab() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="w-full max-w-md mx-auto p-4 border rounded-lg relative">
-          {showScanner ? (
-            <>
-             <QrcodeScanner
-              key={cameraFacingMode}
-              onScanSuccess={onScanSuccess}
-              onScanFailure={onScanFailure}
-              facingMode={cameraFacingMode}
-            />
-            <Button variant="outline" size="icon" onClick={toggleCamera} className="absolute top-2 right-2 z-10 bg-background/50 backdrop-blur-sm hover:bg-background/75">
-                <Camera />
-                <span className="sr-only">Switch Camera</span>
-            </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-                <p className="text-muted-foreground mb-4">Click the button to start the camera and begin scanning.</p>
-                <Button onClick={() => setShowScanner(true)}>Start Scanner</Button>
-            </div>
-          )}
+          {renderScanner()}
         </div>
         
         {lastResult && (
