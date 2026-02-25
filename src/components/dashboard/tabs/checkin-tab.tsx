@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useUserManagement } from '@/contexts/user-management-context';
@@ -62,7 +62,7 @@ export default function CheckinTab() {
     requestCameraPermission();
   }, []);
 
-  const onScanSuccess = (decodedText: string) => {
+  const onScanSuccess = useCallback((decodedText: string) => {
     playPipSound(); // Play sound on successful scan
     const student = students.find(s => s.studentId === decodedText);
     if (student) {
@@ -92,11 +92,11 @@ export default function CheckinTab() {
         variant: 'destructive',
       });
     }
-  };
+  }, [students, settings, updateStudentAttendance, toast]);
 
-  const onScanFailure = (errorMessage: string) => {
+  const onScanFailure = useCallback((errorMessage: string) => {
     // This can be noisy, so we often ignore it.
-  };
+  }, []);
 
   const toggleCamera = () => {
     setCameraFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
