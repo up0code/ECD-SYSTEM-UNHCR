@@ -7,6 +7,8 @@ export function ThemeManager() {
   const { settings } = useUserManagement();
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     // Remove existing theme classes
     const themeClasses = ['theme-purple', 'theme-blue', 'theme-green', 'theme-orange', 'theme-custom'];
     document.body.classList.remove(...themeClasses);
@@ -19,14 +21,17 @@ export function ThemeManager() {
     const root = document.documentElement;
     
     // Custom Hue for "Mix Colors"
+    // Use fallback value to prevent crashes if settings are outdated
+    const customHue = settings.customHue ?? 263;
     if (settings.themeColor === 'custom') {
-      root.style.setProperty('--custom-hue', settings.customHue.toString());
+      root.style.setProperty('--custom-hue', customHue.toString());
     } else {
       root.style.removeProperty('--custom-hue');
     }
 
     // Border Radius for "Color Size"
-    root.style.setProperty('--radius', `${settings.borderRadius}rem`);
+    const borderRadius = settings.borderRadius ?? 0.75;
+    root.style.setProperty('--radius', `${borderRadius}rem`);
 
   }, [settings.themeColor, settings.customHue, settings.borderRadius]);
 

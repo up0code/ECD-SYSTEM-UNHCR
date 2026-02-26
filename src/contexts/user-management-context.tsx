@@ -11,7 +11,6 @@ const MESSAGES_STORAGE_KEY = 'ecd-unhcr-messages';
 const HOLIDAYS_STORAGE_KEY = 'ecd-unhcr-holidays';
 const SETTINGS_STORAGE_KEY = 'ecd-unhcr-settings';
 
-// Messages are now managed in the context
 const MOCK_MESSAGES: Message[] = [
     {
         id: 'msg-1',
@@ -86,7 +85,12 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
       try {
         const storedData = localStorage.getItem(key);
         if (storedData) {
-          return JSON.parse(storedData);
+          const parsed = JSON.parse(storedData);
+          // Merge with mockData to ensure all keys (like customHue) exist if schema evolved
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            return { ...mockData, ...parsed };
+          }
+          return parsed;
         }
         localStorage.setItem(key, JSON.stringify(mockData));
         return mockData;
@@ -109,7 +113,10 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
         if (e.key === PARENTS_STORAGE_KEY && e.newValue) setParents(JSON.parse(e.newValue));
         if (e.key === MESSAGES_STORAGE_KEY && e.newValue) setMessages(JSON.parse(e.newValue));
         if (e.key === HOLIDAYS_STORAGE_KEY && e.newValue) setHolidays(JSON.parse(e.newValue));
-        if (e.key === SETTINGS_STORAGE_KEY && e.newValue) setSettings(JSON.parse(e.newValue));
+        if (e.key === SETTINGS_STORAGE_KEY && e.newValue) {
+            const parsed = JSON.parse(e.newValue);
+            setSettings({ ...MOCK_SETTINGS, ...parsed });
+        }
     };
 
     window.addEventListener('storage', handleStorageChange);
