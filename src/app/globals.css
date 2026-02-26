@@ -81,10 +81,14 @@
   }
 
   .theme-blue {
-    --background: 210 40% 98%;
+    --background: 221 83% 98%;
+    --card: 221 83% 100%;
     --primary: 221 83% 90%;
     --accent: 221 83% 53%;
     --ring: 221 83% 53%;
+    --secondary: 221 83% 95%;
+    --muted: 221 20% 92%;
+    --border: 221 30% 90%;
     --sidebar-background: 222 47% 11%;
     --sidebar-accent: 221 83% 20%;
     --sidebar-border: 222 47% 15%;
@@ -93,10 +97,14 @@
   }
 
   .theme-green {
-    --background: 144 40% 98%;
+    --background: 142 71% 98%;
+    --card: 142 71% 100%;
     --primary: 149 80% 90%;
     --accent: 142 71% 45%;
     --ring: 142 71% 45%;
+    --secondary: 142 71% 95%;
+    --muted: 142 20% 92%;
+    --border: 142 30% 90%;
     --sidebar-background: 144 61% 10%;
     --sidebar-accent: 142 71% 20%;
     --sidebar-border: 144 61% 15%;
@@ -105,10 +113,14 @@
   }
 
   .theme-orange {
-    --background: 24 40% 98%;
+    --background: 25 95% 98%;
+    --card: 25 95% 100%;
     --primary: 33 100% 90%;
     --accent: 25 95% 53%;
     --ring: 25 95% 53%;
+    --secondary: 25 95% 95%;
+    --muted: 25 20% 92%;
+    --border: 25 30% 90%;
     --sidebar-background: 24 95% 10%;
     --sidebar-accent: 25 95% 20%;
     --sidebar-border: 24 95% 15%;
@@ -117,9 +129,14 @@
   }
 
   .theme-purple {
-    --background: 255 45% 97%;
+    --background: 263 29% 98%;
+    --card: 263 29% 100%;
     --primary: 263 29% 85%;
     --accent: 243 75% 59%;
+    --ring: 243 75% 59%;
+    --secondary: 263 29% 95%;
+    --muted: 263 20% 92%;
+    --border: 263 30% 90%;
     --sidebar-background: 243 75% 15%;
     --sidebar-accent: 243 75% 25%;
     --sidebar-border: 243 75% 20%;
@@ -128,10 +145,14 @@
   }
 
   .theme-custom {
-    --background: var(--custom-hue) 45% 97%;
+    --background: var(--custom-hue) 45% 98%;
+    --card: var(--custom-hue) 45% 100%;
     --primary: var(--custom-hue) 29% 85%;
     --accent: var(--custom-hue) 75% 59%;
     --ring: var(--custom-hue) 75% 59%;
+    --secondary: var(--custom-hue) 45% 95%;
+    --muted: var(--custom-hue) 20% 92%;
+    --border: var(--custom-hue) 30% 90%;
     --sidebar-background: var(--custom-hue) 75% 15%;
     --sidebar-accent: var(--custom-hue) 75% 25%;
     --sidebar-border: var(--custom-hue) 75% 20%;
@@ -145,7 +166,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body transition-colors duration-300;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;

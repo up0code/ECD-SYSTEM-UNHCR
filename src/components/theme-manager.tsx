@@ -21,7 +21,6 @@ export function ThemeManager() {
     const root = document.documentElement;
     
     // Custom Hue for "Mix Colors"
-    // Use fallback value to prevent crashes if settings are outdated
     const customHue = settings.customHue ?? 263;
     if (settings.themeColor === 'custom') {
       root.style.setProperty('--custom-hue', customHue.toString());
