@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, UserCog, DatabaseBackup, ShieldCheck, UserCheck, Users, BookOpen, HeartHandshake } from 'lucide-react';
+import { UserPlus, UserCog, DatabaseBackup, ShieldCheck, UserCheck, Users, BookOpen, HeartHandshake, LayoutDashboard } from 'lucide-react';
 import { BackupRestore } from '@/components/admin/backup-restore';
 import { ManageUsers } from '@/components/admin/manage-users';
 import { AddTeacherForm } from '@/components/admin/add-teacher-form';
@@ -33,7 +33,7 @@ export default function AdminTab() {
   const handleDeleteUser = (userId: string) => {
     deleteUser(userId);
     toast({ title: 'User Deleted', description: 'The user has been removed from the system.' });
-    setView('menu'); // Go back to menu after deletion
+    setView('menu');
   };
   
   const handleEditUser = (user: User) => {
@@ -68,99 +68,102 @@ export default function AdminTab() {
 
   const AdminMenu = () => (
     <div className="space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Admin Dashboard</CardTitle>
-                <CardDescription>An overview of the system's key metrics.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{studentCount}</div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
-                        <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{teacherCount}</div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Parents</CardTitle>
-                        <HeartHandshake className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{parentCount}</div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-                        <UserCheck className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{pendingCount}</div>
-                    </CardContent>
-                </Card>
-            </CardContent>
-        </Card>
+        <div className="flex items-center gap-2 mb-2">
+            <LayoutDashboard className="h-6 w-6 text-accent" />
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        </div>
 
-        <Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="border-l-4 border-l-accent shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{studentCount}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Enrolled students</p>
+                </CardContent>
+            </Card>
+             <Card className="border-l-4 border-l-primary shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
+                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{teacherCount}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Teaching staff</p>
+                </CardContent>
+            </Card>
+             <Card className="border-l-4 border-l-green-500 shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Parents</CardTitle>
+                    <HeartHandshake className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{parentCount}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Linked accounts</p>
+                </CardContent>
+            </Card>
+             <Card className={`border-l-4 shadow-sm ${pendingCount > 0 ? 'border-l-destructive animate-pulse' : 'border-l-muted'}`}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                    <UserCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{pendingCount}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
+                </CardContent>
+            </Card>
+        </div>
+
+        <Card className="shadow-md">
             <CardHeader>
-                <CardTitle>Admin Panel</CardTitle>
-                <CardDescription>Manage users, system settings, and run compliance checks.</CardDescription>
+                <CardTitle>Management Console</CardTitle>
+                <CardDescription>Administrative tools and system configurations.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>Pending Approvals</CardTitle></CardHeader>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('pendingApprovals')}>
+                    <CardHeader><CardTitle className="text-base">Pending Approvals</CardTitle></CardHeader>
                     <CardContent className="flex-grow">
                         <CardDescription>
                             {pendingCount > 0 
-                                ? `There are ${pendingCount} new student registration(s) to review.` 
-                                : 'Review and approve new student registrations.'
+                                ? `You have ${pendingCount} registration(s) to verify.` 
+                                : 'Check for new student sign-ups.'
                             }
                         </CardDescription>
                     </CardContent>
                     <CardContent>
-                        <Button className="w-full" onClick={() => setView('pendingApprovals')}>
+                        <Button className="w-full" size="sm">
                             <UserCheck className="mr-2 h-4 w-4" /> 
-                            View Approvals
+                            View List
                             {pendingCount > 0 && <Badge variant="destructive" className="ml-2">{pendingCount}</Badge>}
                         </Button>
                     </CardContent>
                 </Card>
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>Add Student</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><CardDescription>Manually add a new, pre-approved student account.</CardDescription></CardContent>
-                    <CardContent><Button className="w-full" variant="outline" onClick={() => setView('addStudent')}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button></CardContent>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('addStudent')}>
+                    <CardHeader><CardTitle className="text-base">Quick Add: Student</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><CardDescription>Directly create an approved student account.</CardDescription></CardContent>
+                    <CardContent><Button className="w-full" variant="outline" size="sm"><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button></CardContent>
                 </Card>
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>Add Teacher</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><CardDescription>Onboard a new teacher.</CardDescription></CardContent>
-                    <CardContent><Button className="w-full" variant="outline" onClick={() => setView('addTeacher')}><UserPlus className="mr-2 h-4 w-4" /> Add Teacher</Button></CardContent>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('addTeacher')}>
+                    <CardHeader><CardTitle className="text-base">Quick Add: Teacher</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><CardDescription>Register a new faculty member.</CardDescription></CardContent>
+                    <CardContent><Button className="w-full" variant="outline" size="sm"><UserPlus className="mr-2 h-4 w-4" /> Add Teacher</Button></CardContent>
                 </Card>
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>Manage Users</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><CardDescription>Edit or remove students, teachers, and parents.</CardDescription></CardContent>
-                    <CardContent><Button className="w-full" variant="outline" onClick={() => setView('manageUsers')}><Users className="mr-2 h-4 w-4" /> Manage Users</Button></CardContent>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('manageUsers')}>
+                    <CardHeader><CardTitle className="text-base">User Directory</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><CardDescription>Edit or remove existing users across all roles.</CardDescription></CardContent>
+                    <CardContent><Button className="w-full" variant="outline" size="sm"><Users className="mr-2 h-4 w-4" /> Open Directory</Button></CardContent>
                 </Card>
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>AI Policy Compliance</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><CardDescription>Automatically flag students violating attendance policies.</CardDescription></CardContent>
-                    <CardContent><Button className="w-full" variant="outline" onClick={() => setView('policyCompliance')}><ShieldCheck className="mr-2 h-4 w-4" /> Run Analysis</Button></CardContent>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('policyCompliance')}>
+                    <CardHeader><CardTitle className="text-base">Policy AI Agent</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><CardDescription>Run AI analysis to flag attendance policy violations.</CardDescription></CardContent>
+                    <CardContent><Button className="w-full" variant="outline" size="sm"><ShieldCheck className="mr-2 h-4 w-4" /> Run Analysis</Button></CardContent>
                 </Card>
-                <Card className="flex flex-col">
-                    <CardHeader><CardTitle>Backup & Restore</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><CardDescription>Download a backup or restore system data.</CardDescription></CardContent>
-                    <CardContent><Button className="w-full" variant="outline" onClick={() => setView('backupRestore')}><DatabaseBackup className="mr-2 h-4 w-4" /> Backup/Restore</Button></CardContent>
+                <Card className="flex flex-col hover:border-accent transition-colors cursor-pointer" onClick={() => setView('backupRestore')}>
+                    <CardHeader><CardTitle className="text-base">Data Management</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><CardDescription>Manage database backups and system restoration.</CardDescription></CardContent>
+                    <CardContent><Button className="w-full" variant="outline" size="sm"><DatabaseBackup className="mr-2 h-4 w-4" /> Backup Tools</Button></CardContent>
                 </Card>
             </CardContent>
         </Card>
