@@ -6,17 +6,21 @@ import { Settings, CalendarPlus, Palette, Check } from 'lucide-react';
 import { TimeSettings } from '@/components/admin/time-settings';
 import { HolidaySettings } from '@/components/admin/holiday-settings';
 import { useToast } from '@/hooks/use-toast';
+import { useUserManagement } from '@/contexts/user-management-context';
+import { cn } from '@/lib/utils';
 
 type SettingsView = 'menu' | 'timeSettings' | 'holidaySettings' | 'themeSettings';
 
 export default function SettingsTab() {
   const [view, setView] = useState<SettingsView>('menu');
   const { toast } = useToast();
+  const { settings, updateSettings } = useUserManagement();
 
-  const handleApplyTheme = (color: string) => {
+  const handleApplyTheme = (color: 'purple' | 'blue' | 'green' | 'orange') => {
+    updateSettings({ themeColor: color });
     toast({
       title: "Theme Applied",
-      description: `The ${color} theme has been set as the primary style.`,
+      description: `The ${color.charAt(0).toUpperCase() + color.slice(1)} theme has been set as the primary style.`,
     });
   };
 
@@ -37,17 +41,29 @@ export default function SettingsTab() {
         <div className="space-y-4">
             <h3 className="font-semibold">Color Palettes</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border-2 border-accent p-4 flex items-center justify-between">
+                <Card 
+                  className={cn(
+                    "p-4 flex items-center justify-between cursor-pointer transition-all border-2",
+                    settings.themeColor === 'purple' ? "border-accent" : "hover:border-muted-foreground"
+                  )}
+                  onClick={() => handleApplyTheme('purple')}
+                >
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-[#D8CEE6] border"></div>
                         <div>
-                            <p className="font-medium">Purple Professional (Active)</p>
-                            <p className="text-xs text-muted-foreground">Main school theme</p>
+                            <p className="font-medium">Purple Professional</p>
+                            <p className="text-xs text-muted-foreground">Original theme</p>
                         </div>
                     </div>
-                    <Check className="h-5 w-5 text-accent" />
+                    {settings.themeColor === 'purple' && <Check className="h-5 w-5 text-accent" />}
                 </Card>
-                <Card className="p-4 flex items-center justify-between cursor-pointer hover:border-blue-500 transition-all" onClick={() => handleApplyTheme('Blue')}>
+                <Card 
+                  className={cn(
+                    "p-4 flex items-center justify-between cursor-pointer transition-all border-2",
+                    settings.themeColor === 'blue' ? "border-accent" : "hover:border-blue-500"
+                  )}
+                  onClick={() => handleApplyTheme('blue')}
+                >
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-blue-400 border"></div>
                         <div>
@@ -55,8 +71,15 @@ export default function SettingsTab() {
                             <p className="text-xs text-muted-foreground">Standard corporate look</p>
                         </div>
                     </div>
+                    {settings.themeColor === 'blue' && <Check className="h-5 w-5 text-accent" />}
                 </Card>
-                <Card className="p-4 flex items-center justify-between cursor-pointer hover:border-green-500 transition-all" onClick={() => handleApplyTheme('Green')}>
+                <Card 
+                  className={cn(
+                    "p-4 flex items-center justify-between cursor-pointer transition-all border-2",
+                    settings.themeColor === 'green' ? "border-accent" : "hover:border-green-500"
+                  )}
+                  onClick={() => handleApplyTheme('green')}
+                >
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-green-400 border"></div>
                         <div>
@@ -64,8 +87,15 @@ export default function SettingsTab() {
                             <p className="text-xs text-muted-foreground">Calm and natural</p>
                         </div>
                     </div>
+                    {settings.themeColor === 'green' && <Check className="h-5 w-5 text-accent" />}
                 </Card>
-                <Card className="p-4 flex items-center justify-between cursor-pointer hover:border-orange-500 transition-all" onClick={() => handleApplyTheme('Orange')}>
+                <Card 
+                  className={cn(
+                    "p-4 flex items-center justify-between cursor-pointer transition-all border-2",
+                    settings.themeColor === 'orange' ? "border-accent" : "hover:border-orange-500"
+                  )}
+                  onClick={() => handleApplyTheme('orange')}
+                >
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-orange-400 border"></div>
                         <div>
@@ -73,6 +103,7 @@ export default function SettingsTab() {
                             <p className="text-xs text-muted-foreground">Energetic and vibrant</p>
                         </div>
                     </div>
+                    {settings.themeColor === 'orange' && <Check className="h-5 w-5 text-accent" />}
                 </Card>
             </div>
         </div>

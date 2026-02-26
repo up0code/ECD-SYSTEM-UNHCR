@@ -3,6 +3,7 @@ import { AuthProvider } from '@/contexts/auth-context';
 import { UserManagementProvider } from '@/contexts/user-management-context';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { ThemeManager } from '@/components/theme-manager';
 import './globals.css';
 import Script from 'next/script';
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <UserManagementProvider>
+            <ThemeManager />
             <AuthProvider>
               {children}
               <Toaster />

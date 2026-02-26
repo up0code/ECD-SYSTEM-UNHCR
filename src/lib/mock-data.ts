@@ -186,5 +186,6 @@ export const MOCK_HOLIDAYS: Holiday[] = [
 export const MOCK_SETTINGS: SystemSettings = {
     expectedTime: '08:30',
     lateThreshold: 15,
-    maxUnexcusedAbsences: 3
+    maxUnexcusedAbsences: 3,
+    themeColor: 'purple'
 };
