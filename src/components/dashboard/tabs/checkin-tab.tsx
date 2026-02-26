@@ -20,8 +20,9 @@ type ScanResult = {
 const playPipSound = () => {
     if (typeof window === 'undefined') return;
     try {
-        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-        if (!context) return;
+        const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
+        if (!AudioContextClass) return;
+        const context = new AudioContextClass();
         const oscillator = context.createOscillator();
         const gainNode = context.createGain();
 
@@ -47,31 +48,42 @@ export default function CheckinTab() {
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user'>('environment');
+  const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user' | 'any'>('environment');
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        // Request permission with flexible constraints to avoid "Device not found"
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: cameraFacingMode } 
-        }).catch(() => {
-            // Fallback to any camera if specific facing mode fails
-            return navigator.mediaDevices.getUserMedia({ video: true });
-        });
+        // Try requested facing mode first
+        let constraints: MediaStreamConstraints = { 
+            video: cameraFacingMode === 'any' ? true : { facingMode: cameraFacingMode } 
+        };
         
-        // Stop the tracks immediately, html5-qrcode will manage its own stream
-        stream.getTracks().forEach(track => track.stop());
-        setHasCameraPermission(true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            stream.getTracks().forEach(track => track.stop());
+            setHasCameraPermission(true);
+            setError(null);
+        } catch (initialErr: any) {
+            // If environment fails, try any video
+            if (cameraFacingMode === 'environment') {
+                const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                fallbackStream.getTracks().forEach(track => track.stop());
+                setHasCameraPermission(true);
+                setCameraFacingMode('any');
+                setError(null);
+            } else {
+                throw initialErr;
+            }
+        }
       } catch (err: any) {
-        console.error("Camera permission error:", err);
+        console.error("Camera access error:", err);
         setHasCameraPermission(false);
         if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            setError("No camera was found on this device.");
+            setError("No camera found. If you are on a desktop, please ensure a webcam is connected.");
         } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            setError("Camera access was denied. Please enable camera permissions in your browser settings.");
+            setError("Camera access denied. Please enable camera permissions in your browser settings.");
         } else {
-            setError("An error occurred while trying to access the camera.");
+            setError(`Camera error: ${err.message || 'Unknown error'}`);
         }
       }
     };
@@ -79,7 +91,7 @@ export default function CheckinTab() {
   }, [cameraFacingMode]);
 
   const onScanSuccess = useCallback((decodedText: string) => {
-    playPipSound(); // Play sound on successful scan
+    playPipSound(); 
     const student = students.find(s => s.studentId === decodedText);
     if (student) {
       const now = new Date();
@@ -111,32 +123,36 @@ export default function CheckinTab() {
   }, [students, settings, updateStudentAttendance, toast]);
 
   const onScanFailure = useCallback((errorMessage: string) => {
-    // This is noisy during normal operation, so we ignore it.
+    // Ignore routine scan failures
   }, []);
 
   const toggleCamera = () => {
-    setCameraFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
-    setError(null); // Reset error when switching
+    const nextMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+    setCameraFacingMode(nextMode);
+    setError(null);
   }
 
   const renderScanner = () => {
     if (hasCameraPermission === null) {
         return (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-                < RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Requesting camera permission...</p>
+                <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Initializing camera...</p>
             </div>
         );
     }
     
-    if (hasCameraPermission === false || error?.includes("No camera")) {
+    if (hasCameraPermission === false) {
         return (
             <Alert variant="destructive">
                 <CameraOff className="h-4 w-4" />
-                <AlertTitle>Camera Issue</AlertTitle>
+                <AlertTitle>Scanner Unavailable</AlertTitle>
                 <AlertDescription>
-                    {error || "Camera access is required for the QR code scanner. Please check your device settings and refresh."}
+                    {error || "Camera access is required. Please check your browser settings."}
                 </AlertDescription>
+                <Button variant="outline" size="sm" className="mt-4" onClick={() => window.location.reload()}>
+                    Retry Access
+                </Button>
             </Alert>
         );
     }
@@ -147,48 +163,56 @@ export default function CheckinTab() {
                 key={cameraFacingMode}
                 onScanSuccess={onScanSuccess}
                 onScanFailure={onScanFailure}
-                facingMode={cameraFacingMode}
+                facingMode={cameraFacingMode === 'any' ? undefined : cameraFacingMode}
             />
             <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={toggleCamera} 
-                className="absolute top-2 right-2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background shadow-sm"
+                className="absolute top-2 right-2 z-10 bg-background/90 backdrop-blur-sm hover:bg-background shadow-md border-primary/20"
             >
                 <Camera className="mr-2 h-4 w-4" />
-                Switch Camera
+                Switch Lens
             </Button>
         </div>
     )
   }
 
   return (
-    <Card>
+    <Card className="max-w-2xl mx-auto border-t-4 border-t-accent">
       <CardHeader>
-        <CardTitle>QR Code Check-In</CardTitle>
-        <CardDescription>Scan a student's QR code. Expected arrival: <span className="font-bold">{settings.expectedTime}</span>.</CardDescription>
+        <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5 text-accent" />
+            QR Code Check-In
+        </CardTitle>
+        <CardDescription>Scan student codes for attendance. Punctual before: <span className="font-bold text-foreground">{settings.expectedTime}</span>.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="w-full max-w-md mx-auto p-4 border rounded-lg bg-black/5">
+        <div className="w-full overflow-hidden rounded-xl border-2 border-muted bg-black/5 shadow-inner">
           {renderScanner()}
         </div>
         
         {lastResult && (
-          <Alert variant="default" className={lastResult.status === 'late' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'}>
+          <Alert variant="default" className={`animate-in fade-in slide-in-from-bottom-2 ${lastResult.status === 'late' ? 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'}`}>
             {lastResult.status === 'late' ? <Clock className="h-4 w-4 text-orange-600" /> : <CheckCircle className="h-4 w-4 text-green-600" />}
-            <AlertTitle>Last Scan: <span className="capitalize">{lastResult.status}</span></AlertTitle>
-            <AlertDescription>
-              <p><strong>Name:</strong> {lastResult.student.name}</p>
-              <p><strong>Student ID:</strong> {lastResult.student.studentId}</p>
-              <p><strong>Time:</strong> {lastResult.timestamp.toLocaleTimeString()}</p>
+            <AlertTitle className="font-bold">Last Scan: <span className="capitalize">{lastResult.status}</span></AlertTitle>
+            <AlertDescription className="mt-2 text-sm grid grid-cols-2 gap-x-4">
+              <div>
+                <p className="text-muted-foreground text-xs uppercase font-semibold">Student Name</p>
+                <p className="font-medium">{lastResult.student.name}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase font-semibold">Scan Time</p>
+                <p className="font-medium">{lastResult.timestamp.toLocaleTimeString()}</p>
+              </div>
             </AlertDescription>
           </Alert>
         )}
         
-        {error && !error.includes("No camera") && (
-          <Alert variant="destructive">
+        {error && (
+          <Alert variant="destructive" className="animate-in head-shake">
             <XCircle className="h-4 w-4" />
-            <AlertTitle>Scan Error</AlertTitle>
+            <AlertTitle>Scan Status</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

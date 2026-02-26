@@ -6,40 +6,44 @@ import { Html5QrcodeScanner, Html5QrcodeScannerState, Html5QrcodeScanType } from
 interface QrcodeScannerProps {
   onScanSuccess: (decodedText: string) => void;
   onScanFailure: (error: string) => void;
-  facingMode: 'user' | 'environment';
+  facingMode?: 'user' | 'environment';
 }
 
 const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScannerProps) => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
-    // Create new scanner instance
+    // Config for the scanner
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0,
+      // If facingMode is provided, use it, otherwise let the scanner decide (permissive)
+      videoConstraints: facingMode ? { facingMode: facingMode } : undefined,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+    };
+
     const scanner = new Html5QrcodeScanner(
       'qr-reader',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        videoConstraints: {
-          facingMode: facingMode
-        },
-        // Disable file selection as requested
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-      },
+      config,
       /* verbose= */ false
     );
 
     scannerRef.current = scanner;
+    
+    // Start scanning
     scanner.render(onScanSuccess, onScanFailure);
 
     return () => {
         const cleanup = async () => {
             if (scannerRef.current) {
                 try {
+                    // Properly clear and stop camera tracks
                     if (scannerRef.current.getState() === Html5QrcodeScannerState.SCANNING) {
                         await scannerRef.current.clear();
                     }
                 } catch (error) {
-                    console.warn("Cleanup of scanner failed", error);
+                    console.warn("QR Scanner cleanup issue:", error);
                 }
             }
         };
@@ -47,7 +51,7 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
     };
   }, [onScanSuccess, onScanFailure, facingMode]);
 
-  return <div id="qr-reader" className="w-full overflow-hidden rounded-md border bg-muted/20"></div>;
+  return <div id="qr-reader" className="w-full overflow-hidden bg-black/5 min-h-[300px] flex items-center justify-center"></div>;
 };
 
 export default QrcodeScanner;
