@@ -41,59 +41,61 @@ export function AddStudentForm({ teachers, onAddStudent, onBack }: { teachers: T
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack}>
-            <ArrowLeft />
-          </Button>
-          <div>
-            <CardTitle>Add New Student</CardTitle>
-            <CardDescription>Fill in the details to add a new, approved student.</CardDescription>
+    <div className="max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={onBack}>
+              <ArrowLeft />
+            </Button>
+            <div>
+              <CardTitle>Add New Student</CardTitle>
+              <CardDescription>Fill in the details to add a new, approved student.</CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john.doe@example.com" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="class">Class</Label>
-          <Select value={className} onValueChange={setClassName}>
-            <SelectTrigger id="class">
-              <SelectValue placeholder="Select class" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Class A">Class A</SelectItem>
-              <SelectItem value="Class B">Class B</SelectItem>
-              <SelectItem value="Class C">Class C</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-         <div className="space-y-2">
-          <Label htmlFor="teacher">Teacher</Label>
-          <Select value={teacherId} onValueChange={setTeacherId}>
-            <SelectTrigger id="teacher">
-              <SelectValue placeholder="Select teacher" />
-            </SelectTrigger>
-            <SelectContent>
-              {teachers.filter(t => t.email !== 'admin@test.com').map(teacher => (
-                <SelectItem key={teacher.id} value={teacher.id}>{teacher.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button onClick={handleSubmit}>Add Student</Button>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john.doe@example.com" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="class">Class</Label>
+            <Select value={className} onValueChange={setClassName}>
+              <SelectTrigger id="class">
+                <SelectValue placeholder="Select class" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Class A">Class A</SelectItem>
+                <SelectItem value="Class B">Class B</SelectItem>
+                <SelectItem value="Class C">Class C</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+           <div className="space-y-2">
+            <Label htmlFor="teacher">Teacher</Label>
+            <Select value={teacherId} onValueChange={setTeacherId}>
+              <SelectTrigger id="teacher">
+                <SelectValue placeholder="Select teacher" />
+              </SelectTrigger>
+              <SelectContent>
+                {teachers.filter(t => t.email !== 'admin@test.com').map(teacher => (
+                  <SelectItem key={teacher.id} value={teacher.id}>{teacher.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleSubmit} className="w-full">Add Student</Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

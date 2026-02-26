@@ -37,41 +37,43 @@ export function AddTeacherForm({ onAddTeacher, onBack }: { onAddTeacher: (teache
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack}>
-            <ArrowLeft />
-          </Button>
-          <div>
-            <CardTitle>Add New Teacher</CardTitle>
-            <CardDescription>Fill in the details to add a new teacher.</CardDescription>
+    <div className="max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={onBack}>
+              <ArrowLeft />
+            </Button>
+            <div>
+              <CardTitle>Add New Teacher</CardTitle>
+              <CardDescription>Fill in the details to add a new teacher.</CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane.smith@example.com" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="subjects">Subjects</Label>
-          <Input id="subjects" value={subjects} onChange={(e) => setSubjects(e.target.value)} placeholder="Math, Science" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="classes">Classes</Label>
-          <Input id="classes" value={classes} onChange={(e) => setClasses(e.target.value)} placeholder="Class A, Class B" />
-        </div>
-        <Button onClick={handleSubmit}>Add Teacher</Button>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane.smith@example.com" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="subjects">Subjects</Label>
+            <Input id="subjects" value={subjects} onChange={(e) => setSubjects(e.target.value)} placeholder="Math, Science" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="classes">Classes</Label>
+            <Input id="classes" value={classes} onChange={(e) => setClasses(e.target.value)} placeholder="Class A, Class B" />
+          </div>
+          <Button onClick={handleSubmit} className="w-full">Add Teacher</Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
