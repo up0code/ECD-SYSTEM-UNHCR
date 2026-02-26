@@ -69,7 +69,9 @@ export interface SystemSettings {
     expectedTime: string; // HH:MM format
     lateThreshold: number; // in minutes
     maxUnexcusedAbsences: number;
-    themeColor: 'purple' | 'blue' | 'green' | 'orange';
+    themeColor: 'purple' | 'blue' | 'green' | 'orange' | 'custom';
+    customHue: number;
+    borderRadius: number;
 }
 
 

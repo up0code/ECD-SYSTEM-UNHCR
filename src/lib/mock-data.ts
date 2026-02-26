@@ -187,5 +187,7 @@ export const MOCK_SETTINGS: SystemSettings = {
     expectedTime: '08:30',
     lateThreshold: 15,
     maxUnexcusedAbsences: 3,
-    themeColor: 'purple'
+    themeColor: 'purple',
+    customHue: 263,
+    borderRadius: 0.75
 };

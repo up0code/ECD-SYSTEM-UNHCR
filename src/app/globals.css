@@ -126,6 +126,18 @@
     --sidebar-primary: 263 29% 85%;
     --sidebar-primary-foreground: 243 75% 15%;
   }
+
+  .theme-custom {
+    --background: var(--custom-hue) 45% 97%;
+    --primary: var(--custom-hue) 29% 85%;
+    --accent: var(--custom-hue) 75% 59%;
+    --ring: var(--custom-hue) 75% 59%;
+    --sidebar-background: var(--custom-hue) 75% 15%;
+    --sidebar-accent: var(--custom-hue) 75% 25%;
+    --sidebar-border: var(--custom-hue) 75% 20%;
+    --sidebar-primary: var(--custom-hue) 29% 85%;
+    --sidebar-primary-foreground: var(--custom-hue) 75% 15%;
+  }
 }
 
 @layer base {
