@@ -19,7 +19,7 @@ export function ThemeManager() {
     document.body.classList.remove(...themeClasses);
 
     // Apply the selected theme class to the body
-    const selectedTheme = settings.themeColor || 'purple';
+    const selectedTheme = settings?.themeColor || 'purple';
     const themeClass = `theme-${selectedTheme}`;
     document.body.classList.add(themeClass);
 
@@ -27,8 +27,8 @@ export function ThemeManager() {
     const root = document.documentElement;
     
     // Handle Custom Hue for the "Mix Your Own Color" feature
-    // This variable is only used when 'theme-custom' is active
-    const customHue = settings.customHue ?? 263;
+    // Use optional chaining and default value to prevent 'toString' of undefined error
+    const customHue = settings?.customHue ?? 263;
     if (selectedTheme === 'custom') {
       root.style.setProperty('--custom-hue', customHue.toString());
     } else {
@@ -37,10 +37,10 @@ export function ThemeManager() {
 
     // Handle Border Radius for the "Color Size" (rounding) feature
     // Defaults to 0.75rem if not specified
-    const borderRadius = settings.borderRadius ?? 0.75;
+    const borderRadius = settings?.borderRadius ?? 0.75;
     root.style.setProperty('--radius', `${borderRadius}rem`);
 
-  }, [settings.themeColor, settings.customHue, settings.borderRadius]);
+  }, [settings?.themeColor, settings?.customHue, settings?.borderRadius]);
 
   return null;
 }
