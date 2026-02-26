@@ -78,86 +78,90 @@
     --border: 243 30% 15%;
     --input: 243 30% 15%;
     --ring: 243 75% 59%;
+
+    --sidebar-background: 243 75% 10%;
+    --sidebar-foreground: 263 29% 90%;
+    --sidebar-accent: 243 75% 18%;
   }
 
+  /* Theme: Blue */
   .theme-blue {
-    --background: 221 83% 98%;
-    --card: 221 83% 100%;
     --primary: 221 83% 90%;
     --accent: 221 83% 53%;
     --ring: 221 83% 53%;
-    --secondary: 221 83% 95%;
-    --muted: 221 20% 92%;
-    --border: 221 30% 90%;
     --sidebar-background: 222 47% 11%;
     --sidebar-accent: 221 83% 20%;
-    --sidebar-border: 222 47% 15%;
     --sidebar-primary: 221 83% 90%;
-    --sidebar-primary-foreground: 222 47% 11%;
+  }
+  .dark.theme-blue, .dark .theme-blue {
+    --primary: 221 83% 53%;
+    --accent: 221 83% 70%;
+    --background: 222 47% 5%;
+    --card: 222 47% 8%;
   }
 
+  /* Theme: Green */
   .theme-green {
-    --background: 142 71% 98%;
-    --card: 142 71% 100%;
     --primary: 149 80% 90%;
     --accent: 142 71% 45%;
     --ring: 142 71% 45%;
-    --secondary: 142 71% 95%;
-    --muted: 142 20% 92%;
-    --border: 142 30% 90%;
     --sidebar-background: 144 61% 10%;
     --sidebar-accent: 142 71% 20%;
-    --sidebar-border: 144 61% 15%;
     --sidebar-primary: 149 80% 90%;
-    --sidebar-primary-foreground: 144 61% 10%;
+  }
+  .dark.theme-green, .dark .theme-green {
+    --primary: 142 71% 45%;
+    --accent: 142 71% 65%;
+    --background: 144 61% 5%;
+    --card: 144 61% 8%;
   }
 
+  /* Theme: Orange */
   .theme-orange {
-    --background: 25 95% 98%;
-    --card: 25 95% 100%;
     --primary: 33 100% 90%;
     --accent: 25 95% 53%;
     --ring: 25 95% 53%;
-    --secondary: 25 95% 95%;
-    --muted: 25 20% 92%;
-    --border: 25 30% 90%;
     --sidebar-background: 24 95% 10%;
     --sidebar-accent: 25 95% 20%;
-    --sidebar-border: 24 95% 15%;
     --sidebar-primary: 33 100% 90%;
-    --sidebar-primary-foreground: 24 95% 10%;
+  }
+  .dark.theme-orange, .dark .theme-orange {
+    --primary: 25 95% 53%;
+    --accent: 25 95% 70%;
+    --background: 24 95% 5%;
+    --card: 24 95% 8%;
   }
 
+  /* Theme: Purple (Original) */
   .theme-purple {
-    --background: 263 29% 98%;
-    --card: 263 29% 100%;
     --primary: 263 29% 85%;
     --accent: 243 75% 59%;
     --ring: 243 75% 59%;
-    --secondary: 263 29% 95%;
-    --muted: 263 20% 92%;
-    --border: 263 30% 90%;
     --sidebar-background: 243 75% 15%;
     --sidebar-accent: 243 75% 25%;
-    --sidebar-border: 243 75% 20%;
     --sidebar-primary: 263 29% 85%;
-    --sidebar-primary-foreground: 243 75% 15%;
+  }
+  .dark.theme-purple, .dark .theme-purple {
+    --primary: 243 75% 59%;
+    --accent: 263 29% 85%;
+    --background: 243 75% 5%;
+    --card: 243 75% 8%;
   }
 
+  /* Custom Theme logic */
   .theme-custom {
-    --background: var(--custom-hue) 45% 98%;
-    --card: var(--custom-hue) 45% 100%;
     --primary: var(--custom-hue) 29% 85%;
     --accent: var(--custom-hue) 75% 59%;
     --ring: var(--custom-hue) 75% 59%;
-    --secondary: var(--custom-hue) 45% 95%;
-    --muted: var(--custom-hue) 20% 92%;
-    --border: var(--custom-hue) 30% 90%;
     --sidebar-background: var(--custom-hue) 75% 15%;
     --sidebar-accent: var(--custom-hue) 75% 25%;
-    --sidebar-border: var(--custom-hue) 75% 20%;
     --sidebar-primary: var(--custom-hue) 29% 85%;
-    --sidebar-primary-foreground: var(--custom-hue) 75% 15%;
+  }
+  .dark.theme-custom, .dark .theme-custom {
+    --primary: var(--custom-hue) 75% 59%;
+    --accent: var(--custom-hue) 29% 85%;
+    --background: var(--custom-hue) 75% 5%;
+    --card: var(--custom-hue) 75% 8%;
   }
 }
 
