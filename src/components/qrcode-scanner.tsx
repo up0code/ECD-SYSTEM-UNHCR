@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScannerState, Html5QrcodeScanType } from 'html5-qrcode';
 
 interface QrcodeScannerProps {
@@ -10,7 +10,10 @@ interface QrcodeScannerProps {
 }
 
 const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScannerProps) => {
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
   useEffect(() => {
+    // Create new scanner instance
     const scanner = new Html5QrcodeScanner(
       'qr-reader',
       {
@@ -19,32 +22,32 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
         videoConstraints: {
           facingMode: facingMode
         },
+        // Disable file selection as requested
         supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
       },
       /* verbose= */ false
     );
 
+    scannerRef.current = scanner;
     scanner.render(onScanSuccess, onScanFailure);
 
     return () => {
-        const stopScanning = async () => {
-            try {
-                if (scanner && scanner.getState() === Html5QrcodeScannerState.SCANNING) {
-                    await scanner.clear();
-                }
-            } catch (error) {
-                // html5-qrcode has a bug where calling clear() on an already cleared/stopped scanner throws.
-                // We can safely ignore this error if it's the expected one.
-                if (typeof error !== 'string' || !error.includes('not found on substrate')) {
-                     console.error("Failed to clear html5-qrcode-scanner.", error);
+        const cleanup = async () => {
+            if (scannerRef.current) {
+                try {
+                    if (scannerRef.current.getState() === Html5QrcodeScannerState.SCANNING) {
+                        await scannerRef.current.clear();
+                    }
+                } catch (error) {
+                    console.warn("Cleanup of scanner failed", error);
                 }
             }
         };
-        stopScanning();
+        cleanup();
     };
   }, [onScanSuccess, onScanFailure, facingMode]);
 
-  return <div id="qr-reader" className="w-full"></div>;
+  return <div id="qr-reader" className="w-full overflow-hidden rounded-md border bg-muted/20"></div>;
 };
 
 export default QrcodeScanner;
