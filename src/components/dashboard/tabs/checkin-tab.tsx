@@ -16,7 +16,6 @@ type ScanResult = {
   status: 'present' | 'late';
 };
 
-// Function to play a 'pip' sound
 const playPipSound = () => {
     if (typeof window === 'undefined') return;
     try {
@@ -27,7 +26,7 @@ const playPipSound = () => {
         const gainNode = context.createGain();
 
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, context.currentTime); // A6 note
+        oscillator.frequency.setValueAtTime(880, context.currentTime);
         gainNode.gain.setValueAtTime(0.5, context.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
 
@@ -41,21 +40,20 @@ const playPipSound = () => {
     }
 };
 
-
 export default function CheckinTab() {
   const { toast } = useToast();
   const { students, settings, updateStudentAttendance } = useUserManagement();
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user' | 'any'>('environment');
+  const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user' | undefined>('environment');
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        // Try requested facing mode first
-        let constraints: MediaStreamConstraints = { 
-            video: cameraFacingMode === 'any' ? true : { facingMode: cameraFacingMode } 
+        // First attempt with the preferred facing mode
+        const constraints: MediaStreamConstraints = { 
+            video: cameraFacingMode ? { facingMode: cameraFacingMode } : true 
         };
         
         try {
@@ -64,26 +62,23 @@ export default function CheckinTab() {
             setHasCameraPermission(true);
             setError(null);
         } catch (initialErr: any) {
-            // If environment fails, try any video
-            if (cameraFacingMode === 'environment') {
-                const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                fallbackStream.getTracks().forEach(track => track.stop());
-                setHasCameraPermission(true);
-                setCameraFacingMode('any');
-                setError(null);
-            } else {
-                throw initialErr;
-            }
+            // If specific facing mode fails, try any video device
+            console.warn("Specific camera request failed, trying fallback:", initialErr.name);
+            const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            fallbackStream.getTracks().forEach(track => track.stop());
+            setHasCameraPermission(true);
+            setCameraFacingMode(undefined); // Reset to "any" camera
+            setError(null);
         }
       } catch (err: any) {
-        console.error("Camera access error:", err);
+        console.error("All camera access attempts failed:", err);
         setHasCameraPermission(false);
         if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            setError("No camera found. If you are on a desktop, please ensure a webcam is connected.");
+            setError("No camera found on this device.");
         } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            setError("Camera access denied. Please enable camera permissions in your browser settings.");
+            setError("Camera access was denied. Please check your browser permissions.");
         } else {
-            setError(`Camera error: ${err.message || 'Unknown error'}`);
+            setError(`Unable to access camera: ${err.message || 'Check hardware connection'}`);
         }
       }
     };
@@ -109,21 +104,15 @@ export default function CheckinTab() {
       toast({
         title: 'Check-In Successful',
         description: `${student.name} marked as ${status}.`,
-        className: status === 'late' ? 'bg-orange-100 dark:bg-orange-900/30' : ''
       });
     } else {
       setError(`Student ID not found: ${decodedText}`);
       setLastResult(null);
-       toast({
-        title: 'Check-In Failed',
-        description: `No student found with ID: ${decodedText}`,
-        variant: 'destructive',
-      });
     }
   }, [students, settings, updateStudentAttendance, toast]);
 
-  const onScanFailure = useCallback((errorMessage: string) => {
-    // Ignore routine scan failures
+  const onScanFailure = useCallback(() => {
+    // Routing scanning failures are normal and ignored
   }, []);
 
   const toggleCamera = () => {
@@ -137,39 +126,39 @@ export default function CheckinTab() {
         return (
             <div className="flex flex-col items-center justify-center h-64 text-center">
                 <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Initializing camera...</p>
+                <p className="text-muted-foreground">Connecting to camera...</p>
             </div>
         );
     }
     
     if (hasCameraPermission === false) {
         return (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="max-w-md mx-auto">
                 <CameraOff className="h-4 w-4" />
-                <AlertTitle>Scanner Unavailable</AlertTitle>
+                <AlertTitle>Camera Required</AlertTitle>
                 <AlertDescription>
-                    {error || "Camera access is required. Please check your browser settings."}
+                    {error || "We couldn't access your camera. Please ensure it's plugged in and permitted in your browser."}
                 </AlertDescription>
                 <Button variant="outline" size="sm" className="mt-4" onClick={() => window.location.reload()}>
-                    Retry Access
+                    Refresh & Retry
                 </Button>
             </Alert>
         );
     }
     
     return (
-        <div className="relative">
+        <div className="relative group">
             <QrcodeScanner
-                key={cameraFacingMode}
+                key={cameraFacingMode || 'any'}
                 onScanSuccess={onScanSuccess}
                 onScanFailure={onScanFailure}
-                facingMode={cameraFacingMode === 'any' ? undefined : cameraFacingMode}
+                facingMode={cameraFacingMode}
             />
             <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="sm" 
                 onClick={toggleCamera} 
-                className="absolute top-2 right-2 z-10 bg-background/90 backdrop-blur-sm hover:bg-background shadow-md border-primary/20"
+                className="absolute top-4 right-4 z-10 opacity-70 hover:opacity-100 transition-opacity"
             >
                 <Camera className="mr-2 h-4 w-4" />
                 Switch Lens
@@ -179,44 +168,41 @@ export default function CheckinTab() {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto border-t-4 border-t-accent">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5 text-accent" />
-            QR Code Check-In
-        </CardTitle>
-        <CardDescription>Scan student codes for attendance. Punctual before: <span className="font-bold text-foreground">{settings.expectedTime}</span>.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="w-full overflow-hidden rounded-xl border-2 border-muted bg-black/5 shadow-inner">
-          {renderScanner()}
-        </div>
-        
-        {lastResult && (
-          <Alert variant="default" className={`animate-in fade-in slide-in-from-bottom-2 ${lastResult.status === 'late' ? 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'}`}>
-            {lastResult.status === 'late' ? <Clock className="h-4 w-4 text-orange-600" /> : <CheckCircle className="h-4 w-4 text-green-600" />}
-            <AlertTitle className="font-bold">Last Scan: <span className="capitalize">{lastResult.status}</span></AlertTitle>
-            <AlertDescription className="mt-2 text-sm grid grid-cols-2 gap-x-4">
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold">Student Name</p>
-                <p className="font-medium">{lastResult.student.name}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold">Scan Time</p>
-                <p className="font-medium">{lastResult.timestamp.toLocaleTimeString()}</p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {error && (
-          <Alert variant="destructive" className="animate-in head-shake">
-            <XCircle className="h-4 w-4" />
-            <AlertTitle>Scan Status</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <Card className="border-t-4 border-t-accent shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+              <Camera className="h-5 w-5 text-accent" />
+              QR Check-In Terminal
+          </CardTitle>
+          <CardDescription>
+            Scan student QR codes for daily attendance. Expected time: <strong>{settings.expectedTime}</strong>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="overflow-hidden rounded-xl border bg-black shadow-inner min-h-[300px] flex items-center justify-center">
+            {renderScanner()}
+          </div>
+          
+          {lastResult && (
+            <Alert className={`animate-in fade-in slide-in-from-top-2 ${lastResult.status === 'late' ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
+              {lastResult.status === 'late' ? <Clock className="h-4 w-4 text-orange-600" /> : <CheckCircle className="h-4 w-4 text-green-600" />}
+              <AlertTitle className="font-bold">Check-In Logged: {lastResult.student.name}</AlertTitle>
+              <AlertDescription className="capitalize">
+                Status: <strong>{lastResult.status}</strong> at {lastResult.timestamp.toLocaleTimeString()}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {error && !hasCameraPermission && (
+            <Alert variant="destructive" className="animate-in head-shake">
+              <XCircle className="h-4 w-4" />
+              <AlertTitle>Scan Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

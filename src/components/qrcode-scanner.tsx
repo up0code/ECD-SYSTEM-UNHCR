@@ -13,13 +13,20 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
+    // Determine the best video constraints. 
+    // If facingMode is provided, we try it, otherwise we don't constrain it to avoid NotFoundError.
+    const videoConstraints = facingMode 
+      ? { facingMode: { ideal: facingMode } } 
+      : true;
+
     const config = {
       fps: 10,
       qrbox: { width: 250, height: 250 },
       aspectRatio: 1.0,
-      // More permissive config to handle devices without specific cameras
-      videoConstraints: facingMode ? { facingMode: facingMode } : undefined,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+      videoConstraints: videoConstraints,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+      // This prevents the scanner from crashing if the ideal camera isn't found
+      rememberLastUsedCamera: true,
     };
 
     const scanner = new Html5QrcodeScanner(
@@ -49,7 +56,7 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
     };
   }, [onScanSuccess, onScanFailure, facingMode]);
 
-  return <div id="qr-reader" className="w-full overflow-hidden bg-black/5 min-h-[300px] flex items-center justify-center"></div>;
+  return <div id="qr-reader" className="w-full overflow-hidden bg-black/5 min-h-[300px] flex items-center justify-center rounded-xl border border-muted"></div>;
 };
 
 export default QrcodeScanner;
