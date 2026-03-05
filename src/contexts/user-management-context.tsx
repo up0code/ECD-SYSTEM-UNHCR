@@ -102,19 +102,21 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
     loadInitialData();
   }, [loadInitialData]);
 
-  const addStudent = (studentData: Omit<Student, 'id' | 'studentId' | 'status'>) => {
+  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'studentId' | 'status'>) => {
     const newStudent: Student = {
       ...studentData,
       id: `student-${Date.now()}`,
       studentId: `S${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'approved',
     };
-    const updated = [...students, newStudent];
-    setStudents(updated);
-    localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-  };
+    setStudents(prev => {
+        const updated = [...prev, newStudent];
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
   
-  const registerStudent = (studentData: RegisteringUser) => {
+  const registerStudent = useCallback((studentData: RegisteringUser) => {
     const newStudent: Student = {
       ...studentData,
       id: `student-${Date.now()}`,
@@ -125,162 +127,205 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
       teacherId: null,
       dob: '', phone: '', address: '', photo: null, grades: {}, attendance: {},
     };
-    const updated = [...students, newStudent];
-    setStudents(updated);
-    localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-  };
+    setStudents(prev => {
+        const updated = [...prev, newStudent];
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
 
-  const registerParent = (parentData: RegisteringUser) => {
+  const registerParent = useCallback((parentData: RegisteringUser) => {
     const newParent: Parent = {
         ...parentData,
         id: `parent-${Date.now()}`,
         phone: '',
     };
-    const updated = [...parents, newParent];
-    setParents(updated);
-    localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
-  };
+    setParents(prev => {
+        const updated = [...prev, newParent];
+        localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
 
-  const approveStudent = (email: string, code: string): boolean => {
-    const studentIndex = students.findIndex(s => 
-        s.email.toLowerCase() === email.toLowerCase() && 
-        s.status === 'pending' && 
-        s.approvalCode === code
-    );
+  const approveStudent = useCallback((email: string, code: string): boolean => {
+    let success = false;
+    setStudents(prev => {
+        const studentIndex = prev.findIndex(s => 
+            s.email.toLowerCase() === email.toLowerCase() && 
+            s.status === 'pending' && 
+            s.approvalCode === code
+        );
 
-    if (studentIndex > -1) {
-        const updated = [...students];
-        const studentToApprove = { ...updated[studentIndex] };
-        delete studentToApprove.approvalCode;
-        studentToApprove.status = 'approved';
-        updated[studentIndex] = studentToApprove;
-        setStudents(updated);
-        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-        return true;
-    }
-    return false;
-  };
+        if (studentIndex > -1) {
+            success = true;
+            const updated = [...prev];
+            const studentToApprove = { ...updated[studentIndex] };
+            delete studentToApprove.approvalCode;
+            studentToApprove.status = 'approved';
+            updated[studentIndex] = studentToApprove;
+            localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+            return updated;
+        }
+        return prev;
+    });
+    return success;
+  }, []);
 
-  const adminApproveStudent = (studentId: string) => {
-    const studentIndex = students.findIndex(s => s.id === studentId && s.status === 'pending');
-    if (studentIndex > -1) {
-      const updated = [...students];
-      const studentToApprove = { ...updated[studentIndex] };
-      delete studentToApprove.approvalCode;
-      studentToApprove.status = 'approved';
-      updated[studentIndex] = studentToApprove;
-      setStudents(updated);
-      localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-    }
-  };
+  const adminApproveStudent = useCallback((studentId: string) => {
+    setStudents(prev => {
+        const studentIndex = prev.findIndex(s => s.id === studentId && s.status === 'pending');
+        if (studentIndex > -1) {
+            const updated = [...prev];
+            const studentToApprove = { ...updated[studentIndex] };
+            delete studentToApprove.approvalCode;
+            studentToApprove.status = 'approved';
+            updated[studentIndex] = studentToApprove;
+            localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+            return updated;
+        }
+        return prev;
+    });
+  }, []);
 
-  const addTeacher = (teacherData: Omit<Teacher, 'id' | 'teacherId'>) => {
+  const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'teacherId'>) => {
     const newTeacher: Teacher = {
       ...teacherData,
       id: `teacher-${Date.now()}`,
       teacherId: `T${Math.floor(100 + Math.random() * 900)}`,
     };
-    const updated = [...teachers, newTeacher];
-    setTeachers(updated);
-    localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
-  };
+    setTeachers(prev => {
+        const updated = [...prev, newTeacher];
+        localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
   
-  const addParent = (parentData: Omit<Parent, 'id'>) => {
+  const addParent = useCallback((parentData: Omit<Parent, 'id'>) => {
     const newParent: Parent = {
       ...parentData,
       id: `parent-${Date.now()}`,
       phone: parentData.phone || '',
     };
-    const updated = [...parents, newParent];
-    setParents(updated);
-    localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
-  };
-
-  const updateStudentAttendance = (studentId: string, date: string, status: AttendanceStatus) => {
-    const updated = students.map(s => {
-        if (s.id === studentId) {
-            return { ...s, attendance: { ...s.attendance, [date]: status } };
-        }
-        return s;
-    });
-    setStudents(updated);
-    localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-  };
-
-  const updateUser = (userToUpdate: Student | Teacher | Parent) => {
-    if ('studentId' in userToUpdate) {
-        const updated = students.map(s => s.id === userToUpdate.id ? userToUpdate as Student : s);
-        setStudents(updated);
-        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
-    } else if ('teacherId' in userToUpdate) {
-        const updated = teachers.map(t => t.id === userToUpdate.id ? userToUpdate as Teacher : t);
-        setTeachers(updated);
-        localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
-    } else {
-        const updated = parents.map(p => p.id === userToUpdate.id ? userToUpdate as Parent : p);
-        setParents(updated);
+    setParents(prev => {
+        const updated = [...prev, newParent];
         localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
-    }
-  };
-  
-  const deleteUser = (userId: string) => {
-    const updatedStudents = students.filter(s => s.id !== userId);
-    const updatedTeachers = teachers.filter(t => t.id !== userId);
-    const updatedParents = parents.filter(p => p.id !== userId);
-    
-    setStudents(updatedStudents);
-    setTeachers(updatedTeachers);
-    setParents(updatedParents);
-    
-    localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updatedStudents));
-    localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updatedTeachers));
-    localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updatedParents));
-  };
+        return updated;
+    });
+  }, []);
 
-  const addMessage = (messageData: Omit<Message, 'id' | 'timestamp' | 'read'>) => {
+  const updateStudentAttendance = useCallback((studentId: string, date: string, status: AttendanceStatus) => {
+    setStudents(prev => {
+        const updated = prev.map(s => {
+            if (s.id === studentId) {
+                return { ...s, attendance: { ...s.attendance, [date]: status } };
+            }
+            return s;
+        });
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
+
+  const updateUser = useCallback((userToUpdate: Student | Teacher | Parent) => {
+    if ('studentId' in userToUpdate) {
+        setStudents(prev => {
+            const updated = prev.map(s => s.id === userToUpdate.id ? userToUpdate as Student : s);
+            localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+            return updated;
+        });
+    } else if ('teacherId' in userToUpdate) {
+        setTeachers(prev => {
+            const updated = prev.map(t => t.id === userToUpdate.id ? userToUpdate as Teacher : t);
+            localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
+            return updated;
+        });
+    } else {
+        setParents(prev => {
+            const updated = prev.map(p => p.id === userToUpdate.id ? userToUpdate as Parent : p);
+            localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
+            return updated;
+        });
+    }
+  }, []);
+  
+  const deleteUser = useCallback((userId: string) => {
+    setStudents(prev => {
+        const updated = prev.filter(s => s.id !== userId);
+        localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+    setTeachers(prev => {
+        const updated = prev.filter(t => t.id !== userId);
+        localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+    setParents(prev => {
+        const updated = prev.filter(p => p.id !== userId);
+        localStorage.setItem(PARENTS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
+
+  const addMessage = useCallback((messageData: Omit<Message, 'id' | 'timestamp' | 'read'>) => {
     const newMessage: Message = {
         ...messageData,
         id: `msg-${Date.now()}`,
         timestamp: new Date().toISOString(),
         read: false,
     };
-    const updated = [...messages, newMessage];
-    setMessages(updated);
-    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
-  };
-
-  const deleteMessage = (messageId: string) => {
-    const updated = messages.filter(m => m.id !== messageId);
-    setMessages(updated);
-    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
-  };
-
-  const markMessagesAsReadForUser = (userId: string) => {
-    const student = students.find(s => s.id === userId);
-    const studentClass = student ? `class-${student.class}` : null;
-    const updated = messages.map(msg => {
-        const isForUser = 
-            msg.recipient === userId ||
-            (student && msg.recipient === 'all-students') ||
-            (studentClass && msg.recipient === studentClass);
-        
-        if(isForUser && !msg.read) return {...msg, read: true};
-        return msg;
+    setMessages(prev => {
+        const updated = [...prev, newMessage];
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
     });
-    setMessages(updated);
-    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
-  }
+  }, []);
 
-  const setHolidaysState = (newHolidays: Holiday[]) => {
+  const deleteMessage = useCallback((messageId: string) => {
+    setMessages(prev => {
+        const updated = prev.filter(m => m.id !== messageId);
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
+
+  const markMessagesAsReadForUser = useCallback((userId: string) => {
+    setMessages(prevMessages => {
+        const student = students.find(s => s.id === userId);
+        const studentClass = student ? `class-${student.class}` : null;
+        
+        let hasChanges = false;
+        const updated = prevMessages.map(msg => {
+            const isForUser = 
+                msg.recipient === userId ||
+                (student && msg.recipient === 'all-students') ||
+                (studentClass && msg.recipient === studentClass);
+            
+            if(isForUser && !msg.read) {
+                hasChanges = true;
+                return {...msg, read: true};
+            }
+            return msg;
+        });
+        
+        if (!hasChanges) return prevMessages;
+        
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, [students]);
+
+  const setHolidaysState = useCallback((newHolidays: Holiday[]) => {
     setHolidays(newHolidays);
     localStorage.setItem(HOLIDAYS_STORAGE_KEY, JSON.stringify(newHolidays));
-  }
+  }, []);
 
-  const updateSettings = (newSettings: Partial<SystemSettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
-  }
+  const updateSettings = useCallback((newSettings: Partial<SystemSettings>) => {
+    setSettings(prev => {
+        const updated = { ...prev, ...newSettings };
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+    });
+  }, []);
 
   const value = { 
     students, 

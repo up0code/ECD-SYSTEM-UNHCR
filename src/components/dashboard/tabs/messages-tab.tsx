@@ -34,11 +34,13 @@ export default function MessagesTab() {
 
   useEffect(() => {
     if(user) {
-        // This marks all messages visible to the user as "read"
+        // This marks visible messages as read. 
+        // Logic inside markMessagesAsReadForUser handles checking if updates are actually needed to prevent loops.
         markMessagesAsReadForUser(user.uid);
     }
+    // Only run when user ID or unread status might have changed, but avoid recursive triggers
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, messages]); // Also run when messages change
+  }, [user?.uid]); 
   
   const getRelevantMessages = () => {
     if (!user) return [];
