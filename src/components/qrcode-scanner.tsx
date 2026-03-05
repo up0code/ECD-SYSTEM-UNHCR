@@ -13,12 +13,11 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
-    // Config for the scanner
     const config = {
       fps: 10,
       qrbox: { width: 250, height: 250 },
       aspectRatio: 1.0,
-      // If facingMode is provided, use it, otherwise let the scanner decide (permissive)
+      // More permissive config to handle devices without specific cameras
       videoConstraints: facingMode ? { facingMode: facingMode } : undefined,
       supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
     };
@@ -38,12 +37,11 @@ const QrcodeScanner = ({ onScanSuccess, onScanFailure, facingMode }: QrcodeScann
         const cleanup = async () => {
             if (scannerRef.current) {
                 try {
-                    // Properly clear and stop camera tracks
                     if (scannerRef.current.getState() === Html5QrcodeScannerState.SCANNING) {
                         await scannerRef.current.clear();
                     }
                 } catch (error) {
-                    console.warn("QR Scanner cleanup issue:", error);
+                    // Silently ignore cleanup issues
                 }
             }
         };

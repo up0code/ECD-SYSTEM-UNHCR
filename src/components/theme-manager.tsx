@@ -13,6 +13,7 @@ export function ThemeManager() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!settings) return;
 
     // Remove existing theme classes from the body to avoid conflicts
     const themeClasses = ['theme-purple', 'theme-blue', 'theme-green', 'theme-orange', 'theme-custom'];
@@ -27,7 +28,7 @@ export function ThemeManager() {
     const root = document.documentElement;
     
     // Handle Custom Hue for the "Mix Your Own Color" feature
-    // Use optional chaining and default value to prevent 'toString' of undefined error
+    // Safe check to prevent 'toString' of undefined error
     const customHue = settings?.customHue ?? 263;
     if (selectedTheme === 'custom') {
       root.style.setProperty('--custom-hue', customHue.toString());
@@ -36,7 +37,6 @@ export function ThemeManager() {
     }
 
     // Handle Border Radius for the "Color Size" (rounding) feature
-    // Defaults to 0.75rem if not specified
     const borderRadius = settings?.borderRadius ?? 0.75;
     root.style.setProperty('--radius', `${borderRadius}rem`);
 

@@ -64,15 +64,14 @@ interface UserManagementContextType {
 const UserManagementContext = createContext<UserManagementContextType | undefined>(undefined);
 
 export function UserManagementProvider({ children }: { children: ReactNode }) {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [parents, setParents] = useState<Parent[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [students, setStudents] = useState<Student[]>(MOCK_STUDENTS);
+  const [teachers, setTeachers] = useState<Teacher[]>(MOCK_TEACHERS);
+  const [parents, setParents] = useState<Parent[]>(MOCK_PARENTS);
+  const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+  const [holidays, setHolidays] = useState<Holiday[]>(MOCK_HOLIDAYS);
   const [settings, setSettings] = useState<SystemSettings>(MOCK_SETTINGS);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Robust data loader
   const loadInitialData = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -81,7 +80,6 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
         const stored = localStorage.getItem(key);
         if (!stored) return fallback;
         const parsed = JSON.parse(stored);
-        // Deep merge objects to ensure new properties (like customHue) are present
         if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) && typeof fallback === 'object') {
           return { ...fallback, ...parsed };
         }
@@ -102,21 +100,6 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadInitialData();
-
-    const handleStorageChange = (e: StorageEvent) => {
-        if (!e.newValue) return;
-        try {
-            if (e.key === STUDENTS_STORAGE_KEY) setStudents(JSON.parse(e.newValue));
-            if (e.key === TEACHERS_STORAGE_KEY) setTeachers(JSON.parse(e.newValue));
-            if (e.key === PARENTS_STORAGE_KEY) setParents(JSON.parse(e.newValue));
-            if (e.key === MESSAGES_STORAGE_KEY) setMessages(JSON.parse(e.newValue));
-            if (e.key === HOLIDAYS_STORAGE_KEY) setHolidays(JSON.parse(e.newValue));
-            if (e.key === SETTINGS_STORAGE_KEY) setSettings(prev => ({ ...prev, ...JSON.parse(e.newValue!) }));
-        } catch (err) {}
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, [loadInitialData]);
 
   const addStudent = (studentData: Omit<Student, 'id' | 'studentId' | 'status'>) => {
@@ -159,12 +142,10 @@ export function UserManagementProvider({ children }: { children: ReactNode }) {
   };
 
   const approveStudent = (email: string, code: string): boolean => {
-    const trimmedCode = code.trim();
-    const trimmedEmail = email.trim().toLowerCase();
     const studentIndex = students.findIndex(s => 
-        s.email.trim().toLowerCase() === trimmedEmail && 
+        s.email.toLowerCase() === email.toLowerCase() && 
         s.status === 'pending' && 
-        s.approvalCode === trimmedCode
+        s.approvalCode === code
     );
 
     if (studentIndex > -1) {
